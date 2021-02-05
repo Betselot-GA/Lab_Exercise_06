@@ -98,14 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+  
   // Add New  Task Function definition
   function addNewTask(e) {
+  
     // Check empty entry
     if (taskInput.value === "") {
       taskInput.style.borderColor = "red";
 
       return;
     }
+  
     const nowDate = new Date();
     const nowDateString = nowDate.getHours() + ":" + nowDate.getMinutes() + ":" + nowDate.getSeconds() + ":" + nowDate.getMilliseconds()
 
@@ -113,12 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
       taskname: taskInput.value,
       date: nowDateString,
     }
+  
     // Insert the object into the database 
     let transaction = DB.transaction(['tasks'], 'readwrite');
     let objectStore = transaction.objectStore('tasks');
 
     let request = objectStore.add(newTask);
     // on success
+  
     request.onsuccess = () => {
       form.reset();
       displayTaskList();
