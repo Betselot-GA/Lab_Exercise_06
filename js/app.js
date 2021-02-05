@@ -14,6 +14,10 @@ const reloadIcon = document.querySelector(".fa"); //the reload button at the top
 
 const li = document.createElement("li");
 
+const asc = document.querySelector('#ascending')
+const dsc = document.querySelector('#decending')
+
+
 // Add Event Listener  [Form , clearBtn and filter search input ]
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,14 +30,17 @@ document.addEventListener('DOMContentLoaded', () => {
   //   Filter Task
   filter.addEventListener("keyup", filterTasks);
 
+  //document.querySelectorAll('.browser-default').dropdown();
+
   // Remove task event [event delegation]
   taskList.addEventListener("click", removeTask);
-
+  asc.addEventListener("click", sortAsc)
+  dsc.addEventListener("click", sortDsc)
   // Event Listener for reload
   reloadIcon.addEventListener("click", reloadPage);
 
   //Event listener for sort in ascending and descending order
-  dropDown.addEventListener("change", sortTask);
+  //dropDown.addEventListener("change", sortTask);
 
   let TasksDB = indexedDB.open("Tasks", 1);
 
@@ -66,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     objectStore.createIndex('date', 'date', {
       unique: false
-    })
+    });
 
     console.log('Database ready and fields created!');
   }
@@ -175,14 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Filter tasks function definition
   function filterTasks(e) {
-    const keyword = filter.value;
-    const tasts_list = document.querySelectorAll(".collection-item");
-    tasts_list.forEach(function (words) {
-      if (words.firstChild.textContent.indexOf(keyword)) {
-        words.style.display = "none";
-      } else {
-        words.style.display = "block";
-      }
+    let searchedFor = filter.value //mke it lower case
+
+    let AllTasks = document.querySelectorAll('.collection-item')
+
+    AllTasks.forEach(function (task) {
+        taskTextContent = task.textContent
+        let searchResult = taskTextContent.indexOf(searchedFor.toLowerCase())
+
+        if (searchResult == -1) {
+            task.style.display = "none"
+        } else {
+            task.style.display = "block"
+        }
     });
   }
 
@@ -216,43 +228,107 @@ document.addEventListener('DOMContentLoaded', () => {
     location.reload();
   }
 
-  function sortTask() {
-    const addeddTasks = document.querySelectorAll(".collection-item");
+  // function sortTask() {
+  //   const addeddTasks = document.querySelectorAll(".collection-item");
 
-    let taskDates = [];
+  //   let taskDates = [];
 
-    addeddTasks.forEach(function (words) {
-      taskDates.push(words.value);
+  //   addeddTasks.forEach(function (words) {
+  //     taskDates.push(words.value);
 
-    });
+  //   });
 
-    taskDates.sort();
+  //   taskDates.sort();
 
-    let len = taskDates.length;
-    const nowDate = new Date();
+  //   let len = taskDates.length;
+  //   const nowDate = new Date();
 
-    if (sortTask.value == "0") {
-      for (let i = 0; i < len; i++) {
-        addeddTasks.forEach(function (words) {
-          if (taskDates[i] == words.value) {
-            taskList.appendChild(words);
+  //   if (sortTask.value == "0") {
+  //     for (let i = 0; i < len; i++) {
+  //       addeddTasks.forEach(function (words) {
+  //         if (taskDates[i] == words.value) {
+  //           taskList.appendChild(words);
 
-          }
-        });
-      }
-    } else {
+  //         }
+  //       });
+  //     }
+  //   } else {
 
-      for (let i = len; i >= 0; i--) {
-        addeddTasks.forEach(function (words) {
-          if (taskDates[i] == words.value) {
-            taskList.appendChild(words);
+  //     for (let i = len; i >= 0; i--) {
+  //       addeddTasks.forEach(function (words) {
+  //         if (taskDates[i] == words.value) {
+  //           taskList.appendChild(words);
 
-          }
-        });
+  //         }
+  //       });
+  //     }
+  //   }
+
+  // }
+
+  function sortAsc() {
+    const allContents = new Array()
+
+    let objectStore = DB.transaction('tasks').objectStore('tasks')
+
+    // console.log(objectStore.getAll())
+    objectStore.openCursor().onsuccess = function (e) {
+      let cursor = e.target.result
+
+      if (cursor) {
+        let task = {
+          id: cursor.value.id,
+          taskname: cursor.value.taskname,
+          date: cursor.value.date
+        }
+        allContents.push(task)
+        cursor.continue()
+      } else {
+        // allContents.forEach(function(t))
+        const sortedContent = allContents.sort((a, b) => (a.date > b.date) ? 1 : -1)
+
+        document.querySelector('.collection').innerHTML = ''
+        // document.querySelector('.collection').innerHTML = ''
+        sortedContent.forEach(function (task) {
+          createTaskElement(task.id, task.taskname, task.date)
+        })
       }
     }
 
+
   }
+
+  function sortDsc() {
+
+    const allContents = []
+
+    let objectStore = DB.transaction('tasks').objectStore('tasks')
+
+    objectStore.openCursor().onsuccess = function (e) {
+      let cursor = e.target.result
+
+      if (cursor) {
+        let task = {
+          id: cursor.value.id,
+          taskname: cursor.value.taskname,
+          date: cursor.value.date
+        }
+        allContents.push(task)
+        cursor.continue()
+      } else {
+
+        const sortedContent = allContents.reverse((a, b) => (a.date > b.date) ? 1 : -1)
+
+        document.querySelector('.collection').innerHTML = ''
+        sortedContent.forEach(function (task) {
+          createTaskElement(task.id, task.taskname, task.date)
+        })
+      }
+    }
+
+
+  }
+
 
 
 });
