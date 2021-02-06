@@ -325,9 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortedContent = allContents.reverse((a, b) => (a.date > b.date) ? 1 : -1)
 
         document.querySelector('.collection').innerHTML = ''
+
         sortedContent.forEach(function (task) {
           createTaskElement(task.id, task.taskname, task.date)
-        })
+        });
       }
     }
 
