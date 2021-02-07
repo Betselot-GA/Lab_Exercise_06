@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const addDate = document.createElement("em")
         
         addDate.className = "align-right"
-        addDate.style = "position:absolute;margin-left:70%"
+        addDate.style = "position:absolute;margin-left:78%"
         addDate.innerHTML = date
         li.appendChild(addDate)
     }
